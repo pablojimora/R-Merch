@@ -64,6 +64,26 @@ export async function PUT(
 
     const body = await request.json();
 
+    // Validar que solo se envíen campos permitidos
+    const allowedFields = ["name", "description", "price"];
+    const receivedFields = Object.keys(body);
+    const invalidFields = receivedFields.filter(field => !allowedFields.includes(field));
+
+    if (invalidFields.length > 0) {
+      return NextResponse.json({
+        success: false,
+        message: `Campos no permitidos para actualización: ${invalidFields.join(", ")}. Solo se pueden actualizar: name, description, price`
+      }, { status: 400 });
+    }
+
+    // Validar que se envió al menos un campo
+    if (receivedFields.length === 0) {
+      return NextResponse.json({
+        success: false,
+        message: "Debe proporcionar al menos un campo para actualizar"
+      }, { status: 400 });
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       body,

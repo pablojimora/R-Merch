@@ -10,14 +10,32 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
+    const search = searchParams.get("search") || "";
     const skip = (page - 1) * limit;
 
-    const products = await Product.find()
+    // Crear filtro de búsqueda
+    const filter: any = {};
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const products = await Product.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Product.countDocuments();
+    const total = await Product.countDocuments(filter);
+
+    // Validar si no se encontraron productos en la búsqueda
+    if (search && products.length === 0) {
+      return NextResponse.json({
+        success: false,
+        message: `No se encontraron productos con la búsqueda: "${search}"`
+      }, { status: 404 });
+    }
 
     return NextResponse.json({
       success: true,
@@ -47,11 +65,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validar campos requeridos
-    const { name, price, stock } = body;
+    const { name, price, stock, images } = body;
     if (!name || price === undefined || stock === undefined) {
       return NextResponse.json({
         success: false,
         message: "Faltan campos requeridos: name, price, stock"
+      }, { status: 400 });
+    }
+
+    // Validar imágenes si se proporcionan
+    if (images && (!Array.isArray(images) || images.length === 0)) {
+      return NextResponse.json({
+        success: false,
+        message: "Debe proporcionar al menos una imagen válida"
       }, { status: 400 });
     }
 
