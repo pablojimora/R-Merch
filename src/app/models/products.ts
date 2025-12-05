@@ -30,7 +30,7 @@ const ProductSchema = new mongoose.Schema({
 
   ownerId: {
     type: String,
-    required: true
+    required: false
   },
 
   isOfficial: {
