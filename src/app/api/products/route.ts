@@ -47,11 +47,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validar campos requeridos
-    const { name, price, stock, ownerId } = body;
-    if (!name || price === undefined || stock === undefined || !ownerId) {
+    const { name, price, stock } = body;
+    if (!name || price === undefined || stock === undefined) {
       return NextResponse.json({
         success: false,
-        message: "Faltan campos requeridos: name, price, stock, ownerId"
+        message: "Faltan campos requeridos: name, price, stock"
       }, { status: 400 });
     }
 
