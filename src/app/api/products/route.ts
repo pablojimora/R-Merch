@@ -73,11 +73,26 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Validar imágenes si se proporcionan
-    if (images && (!Array.isArray(images) || images.length === 0)) {
+    // Validar que price y stock sean números válidos
+    if (typeof price !== 'number' || price <= 0) {
       return NextResponse.json({
         success: false,
-        message: "Debe proporcionar al menos una imagen válida"
+        message: "El precio debe ser un número mayor a 0"
+      }, { status: 400 });
+    }
+
+    if (typeof stock !== 'number' || stock < 0) {
+      return NextResponse.json({
+        success: false,
+        message: "El stock debe ser un número mayor o igual a 0"
+      }, { status: 400 });
+    }
+
+    // Validar imágenes si se proporcionan
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return NextResponse.json({
+        success: false,
+        message: "Debe proporcionar al menos una imagen del producto"
       }, { status: 400 });
     }
 
