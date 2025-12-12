@@ -5,12 +5,13 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import Image from "next/image";
 
-interface Product {
+export interface Product {
   _id: string;
   name: string;
   price: number;
   stock: number;
-  images: string[];
+  images?: string[];
+  imageUrl: string;
 }
 
 interface User {

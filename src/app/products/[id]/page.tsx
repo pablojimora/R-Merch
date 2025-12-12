@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { addToCart } from "@/services/products";
+import { Product } from "@/app/admin/page";
+import Modal from "@/components/Modal";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -10,7 +13,8 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(1)
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -38,9 +42,10 @@ export default function ProductDetailPage() {
     }
   };
 
-  const handleAddToCart = () => {
-    // TODO: Implement cart functionality
-    alert(`Añadido al carrito: ${quantity} x ${product.name}`);
+  const handleAddToCart = async (product: Product) => {
+    // await addToCart(product);
+    setOpen(true)
+    console.log(product);
   };
 
   if (loading) {
@@ -214,12 +219,14 @@ export default function ProductDetailPage() {
           {/* Add to Cart Button */}
           <div className="flex gap-3 mb-6">
             <button
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart(product)}
               disabled={!hasStock}
-              className="flex-1 rounded-md bg-[#615CF2] px-6 py-4 text-white font-semibold hover:bg-[#4e49d9] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-md bg-[#615CF2] px-6 py-4 text-white font-semibold hover:bg-[#4e49d9] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {hasStock ? "Añadir al carrito" : "Agotado"}
             </button>
+            <Modal title="Producto agreado a el carrito de compras" text="Revisa tu carrito de compras para ver más informacion sobre tus productos" open={open} onClose={() => setOpen(false)} />
+            {/* <Modal title="Orden agendada" text="Tu producto ha sido agendado correctamente" open={open} onClose={() => setOpen(false)} /> */}
             <button className="h-14 w-14 rounded-md border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition">
               <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
