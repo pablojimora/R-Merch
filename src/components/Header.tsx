@@ -2,13 +2,26 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { getCardProducts } from "@/services/products";
 
 export default function Header() {
   const auth = useAuth();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("rmerch_user") || "{}");
+    if (user.id) {
+      getCardProducts(user.id).then(res => {
+        const count = res.data?.items?.length || 0;
+        setCartCount(count);
+      });
+    }
+  }, []);
 
   return (
     <header className="w-full border-b bg-white/80 backdrop-blur-sm">
-      <div className="container mx-auto flex items-center justify-between px-4 py-4">
+      <div className="flex flex-wrap container mx-auto items-center justify-between px-4 py-4">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#615CF2] text-white">
             <span className="font-semibold">R</span>
@@ -18,7 +31,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        <nav className="flex flex-wrap justify-center items-center gap-4">
           <Link href="/" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Inicio</Link>
           <Link href="/shop" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Tienda</Link>
 
@@ -49,7 +62,7 @@ export default function Header() {
           <Link href="/cart" className="relative inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-[#161C40] hover:bg-gray-100">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h-2l-1 2h2l3.6 7.59-1.35 2.44C8.89 16.37 9.5 18 11 18h8v-2h-7.1c-.14 0-.25-.09-.29-.22L12.1 14h5.45c.75 0 1.41-.41 1.75-1.03l3.58-7.59L21.3 3H6.21l-.94-2H1v2h3l3.6 7.59L7 4z"/></svg>
             Carrito
-            <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#62D9AD] text-xs font-medium text-white">0</span>
+            <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#62D9AD] text-xs font-medium text-white">{cartCount}</span>
           </Link>
         </nav>
       </div>

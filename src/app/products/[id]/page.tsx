@@ -42,9 +42,14 @@ export default function ProductDetailPage() {
     }
   };
 
-  const handleAddToCart = async (product: Product) => {
-    // await addToCart(product);
-    setOpen(true)
+  const handleAddToCart = async (product: Product) => {;
+    const user = JSON.parse(localStorage.getItem("rmerch_user") || "{}");
+    await addToCart({
+      userId: user.id,
+      productId: product._id,
+      quantity,
+    });
+    setOpen(true);
     console.log(product);
   };
 

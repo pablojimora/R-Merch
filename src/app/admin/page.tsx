@@ -7,11 +7,15 @@ import Image from "next/image";
 
 export interface Product {
   _id: string;
+  userId?: string;
   name: string;
   price: number;
   stock: number;
+  quantity?: number;
   images?: string[];
   imageUrl: string;
+  subtotal?: string;
+  productId?: string;
 }
 
 interface User {
