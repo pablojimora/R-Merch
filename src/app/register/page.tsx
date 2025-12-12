@@ -1,10 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -14,9 +12,26 @@ export default function RegisterPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const res = await register(name, email, password);
-    if (!res.success) setError(res.message || "Error");
-    else router.push("/");
+
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Error al registrar el usuario.");
+      } else {
+        router.push("/login");
+      }
+    } catch (err) {
+      setError("Error al conectar con el servidor.");
+    }
   };
 
   return (

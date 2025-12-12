@@ -54,20 +54,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    // search in mocked users and any extra users stored in localStorage
-    const extra = loadExtraUsers();
-    const all = [...MOCK_USERS, ...extra];
-    const found = all.find((u: any) => u.email === email && u.password === password);
-    if (!found) return { success: false, message: "Credenciales inválidas" };
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const userObj: User = { 
-      id: found.id, 
-      name: found.name, 
-      email: found.email,
-      role: found.role || "user" // Default to user if not specified
-    };
-    saveSession(userObj);
-    return { success: true };
+      const data = await res.json();
+
+      if (!res.ok) {
+        return { success: false, message: data.message || "Credenciales inválidas" };
+      }
+
+      const userObj: User = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+      };
+      saveSession(userObj);
+      return { success: true };
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+      return { success: false, message: "Error al conectar con el servidor" };
+    }
   };
 
   const logout = () => {
