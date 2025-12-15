@@ -11,15 +11,46 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
+    const type = searchParams.get("type") || ""; // official, sellers, all
     const skip = (page - 1) * limit;
 
     // Crear filtro de búsqueda
     const filter: any = {};
-    if (search) {
+    
+    // Filtrar por tipo
+    if (type === "official") {
+      // Productos del admin (sin ownerId o isOfficial true)
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } }
+        { ownerId: { $exists: false } },
+        { ownerId: null },
+        { ownerId: "" },
+        { isOfficial: true }
       ];
+    } else if (type === "sellers") {
+      // Productos de vendedores (con ownerId)
+      filter.ownerId = { $exists: true, $ne: null, $ne: "" };
+      filter.isOfficial = { $ne: true };
+    }
+    
+    // Añadir búsqueda por texto
+    if (search) {
+      const searchCondition = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } }
+        ]
+      };
+      
+      if (filter.$or) {
+        // Si ya hay un filtro $or, lo combinamos con $and
+        filter.$and = [
+          { $or: filter.$or },
+          searchCondition
+        ];
+        delete filter.$or;
+      } else {
+        Object.assign(filter, searchCondition);
+      }
     }
 
     const products = await Product.find(filter)

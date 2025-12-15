@@ -5,14 +5,16 @@ const MOCK_USERS = [
     name: "Pablo Jimora",
     email: "pablo@riwi.com",
     password: "password123",
-    role: "user" // Usuario normal
+    role: "user", // Usuario normal
+    isActive: true // Usuario activo por defecto
   },
   {
     id: "u2",
     name: "Duque",
     email: "duque@riwi.com",
     password: "securepass",
-    role: "admin" // Administrador
+    role: "admin", // Administrador
+    isActive: true // Administrador siempre activo
   }
 ];
 

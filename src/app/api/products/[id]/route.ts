@@ -32,7 +32,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: product
+      product: product
     }, { status: 200 });
 
   } catch (error: any) {
@@ -65,14 +65,14 @@ export async function PUT(
     const body = await request.json();
 
     // Validar que solo se envíen campos permitidos
-    const allowedFields = ["name", "description", "price"];
+    const allowedFields = ["name", "description", "price", "stock", "images"];
     const receivedFields = Object.keys(body);
     const invalidFields = receivedFields.filter(field => !allowedFields.includes(field));
 
     if (invalidFields.length > 0) {
       return NextResponse.json({
         success: false,
-        message: `Campos no permitidos para actualización: ${invalidFields.join(", ")}. Solo se pueden actualizar: name, description, price`
+        message: `Campos no permitidos para actualización: ${invalidFields.join(", ")}. Solo se pueden actualizar: name, description, price, stock, images`
       }, { status: 400 });
     }
 

@@ -24,8 +24,8 @@ export default function ProductDetailPage() {
       const res = await fetch(`/api/products/${params.id}`);
       const data = await res.json();
       
-      if (data.success) {
-        setProduct(data.data);
+      if (data.success && data.product) {
+        setProduct(data.product);
       } else {
         // Product not found
         setProduct(null);
@@ -144,7 +144,14 @@ export default function ProductDetailPage() {
 
         {/* Product Info */}
         <div>
-          <h1 className="text-3xl font-bold text-[#161C40] mb-2">{product.name}</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-[#161C40]">{product.name}</h1>
+            {product.ownerId && (
+              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                Emprendedor
+              </span>
+            )}
+          </div>
           
           {/* Price */}
           <div className="mb-4">

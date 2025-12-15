@@ -2,12 +2,18 @@
 import { useState, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Link from "next/link";
+import MOCK_USERS from "@/lib/mockUsers";
 
 interface User {
+  id: string;
   name: string;
   email: string;
   role: string;
+  password?: string;
+  isActive: boolean;
 }
+
+const EXTRA_USERS_KEY = "rmerch_extra_users";
 
 export default function UsersPage() {
   return (
@@ -18,12 +24,49 @@ export default function UsersPage() {
 }
 
 function UsersContent() {
-  const [users, setUsers] = useState<User[]>([
-    { name: "Pablo Mora", email: "pablo@riwi.io", role: "user" },
-    { name: "Duque", email: "duque@riwi.io", role: "admin" }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Cargar usuarios al montar el componente
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = () => {
+    try {
+      const extraUsersRaw = localStorage.getItem(EXTRA_USERS_KEY);
+      const extraUsers = extraUsersRaw ? JSON.parse(extraUsersRaw) : [];
+      const allUsers = [...MOCK_USERS, ...extraUsers];
+      setUsers(allUsers);
+    } catch (error) {
+      console.error("Error loading users:", error);
+    }
+  };
+
+  const changeUserRole = async (userId: string, newRole: string) => {
+    try {
+      setLoading(true);
+      
+      // Actualizar el rol del usuario
+      const updatedUsers = users.map(user => {
+        if (user.id === userId) {
+          return { ...user, role: newRole };
+        }
+        return user;
+      });
+      
+      // Guardar en localStorage
+      const extraUsers = updatedUsers.filter(u => u.id.startsWith('x_'));
+      localStorage.setItem(EXTRA_USERS_KEY, JSON.stringify(extraUsers));
+      
+      setUsers(updatedUsers);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error changing user role:", error);
+      setLoading(false);
+    }
+  };
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -67,7 +110,7 @@ function UsersContent() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-[#615CF2]/10 flex items-center justify-center">
@@ -78,6 +121,22 @@ function UsersContent() {
             <div>
               <p className="text-sm text-gray-600">Total Usuarios</p>
               <p className="text-xl font-bold text-[#161C40]">{users.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+              <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Usuarios Activos</p>
+              <p className="text-xl font-bold text-[#161C40]">
+                {users.filter(u => u.isActive).length}
+              </p>
             </div>
           </div>
         </div>
@@ -100,15 +159,15 @@ function UsersContent() {
 
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-              <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+              <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Usuarios</p>
+              <p className="text-sm text-gray-600">Vendedores</p>
               <p className="text-xl font-bold text-[#161C40]">
-                {users.filter(u => u.role === 'user').length}
+                {users.filter(u => u.role === 'seller').length}
               </p>
             </div>
           </div>
@@ -146,11 +205,14 @@ function UsersContent() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Estado
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition">
+              {filteredUsers.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#615CF2] to-[#4e49d9] flex items-center justify-center text-white font-semibold">
@@ -168,15 +230,36 @@ function UsersContent() {
                     <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       user.role === 'admin' 
                         ? 'bg-purple-100 text-purple-800' 
+                        : user.role === 'seller'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-blue-100 text-blue-800'
                     }`}>
-                      {user.role === 'admin' ? 'Administrador' : 'Usuario'}
+                      {user.role === 'admin' ? 'Administrador' : user.role === 'seller' ? 'Vendedor' : 'Usuario'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Activo
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      user.isActive 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {user.isActive ? 'Activo' : 'Inactivo'}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {user.role === 'admin' ? (
+                      <span className="text-xs text-gray-500 italic">Admin</span>
+                    ) : (
+                      <select
+                        value={user.role}
+                        onChange={(e) => changeUserRole(user.id, e.target.value)}
+                        disabled={loading}
+                        className="rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="user">Usuario</option>
+                        <option value="seller">Vendedor</option>
+                      </select>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -192,9 +275,9 @@ function UsersContent() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="text-sm text-blue-800">
-            <p className="font-medium mb-1">Usuarios de prueba</p>
+            <p className="font-medium mb-1">Gestión de Roles de Usuario</p>
             <p className="text-blue-700">
-              Actualmente los usuarios están hardcodeados. En futuras versiones se implementará el sistema de registro y autenticación con base de datos.
+              Como administrador, puedes cambiar el rol de cualquier usuario entre "Usuario" y "Vendedor" usando el selector en la columna de acciones. Los vendedores tendrán permisos para crear y gestionar productos.
             </p>
           </div>
         </div>

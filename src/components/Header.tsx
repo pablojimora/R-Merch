@@ -21,6 +21,7 @@ export default function Header() {
         <nav className="flex items-center gap-4">
           <Link href="/" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Inicio</Link>
           <Link href="/shop" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Tienda</Link>
+          <Link href="/emprendimientos" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Emprendimientos</Link>
 
           {auth.user ? (
             <div className="flex items-center gap-3">
@@ -31,10 +32,20 @@ export default function Header() {
                     Admin
                   </span>
                 )}
+                {auth.user.role === 'seller' && (
+                  <span className="rounded-full bg-green-600 px-2 py-0.5 text-xs font-semibold text-white">
+                    Vendedor
+                  </span>
+                )}
               </div>
               {auth.isAdmin() && (
                 <Link href="/admin" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">
                   Panel Admin
+                </Link>
+              )}
+              {auth.user.role === 'seller' && (
+                <Link href="/seller" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">
+                  Panel Vendedor
                 </Link>
               )}
               <button onClick={() => auth.logout()} className="rounded-md bg-gray-100 px-3 py-1 text-sm hover:bg-gray-200">Cerrar</button>

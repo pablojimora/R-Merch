@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 
-export default function ShopPage() {
+export default function EmprendimientosPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -21,7 +21,7 @@ export default function ShopPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: "12",
-        type: "official", // Solo productos oficiales del admin
+        type: "sellers", // Solo productos de vendedores
         ...(search && { search }),
       });
       const res = await fetch(`/api/products?${params}`);
@@ -52,8 +52,23 @@ export default function ShopPage() {
     <div className="py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#161C40]">Tienda R-Merch</h1>
-        <p className="mt-2 text-gray-600">Explora todos nuestros productos oficiales RIWI</p>
+        <h1 className="text-3xl font-bold text-[#161C40]">Emprendimientos RIWI</h1>
+        <p className="mt-2 text-gray-600">Descubre productos únicos creados por nuestra comunidad de vendedores</p>
+      </div>
+
+      {/* Info Banner */}
+      <div className="mb-6 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 p-4">
+        <div className="flex items-start gap-3">
+          <svg className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <div className="text-sm text-green-800">
+            <p className="font-medium mb-1">Apoya a los emprendedores de RIWI</p>
+            <p className="text-green-700">
+              Cada compra apoya directamente a los vendedores de nuestra comunidad. Productos únicos y de calidad.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -63,12 +78,12 @@ export default function ShopPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar productos..."
-            className="flex-1 rounded-md border border-gray-300 px-4 py-3 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20"
+            placeholder="Buscar emprendimientos..."
+            className="flex-1 rounded-md border border-gray-300 px-4 py-3 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
           />
           <button
             type="submit"
-            className="rounded-md bg-[#615CF2] px-6 py-3 text-white font-semibold hover:bg-[#4e49d9] transition"
+            className="rounded-md bg-green-600 px-6 py-3 text-white font-semibold hover:bg-green-700 transition"
           >
             Buscar
           </button>
@@ -78,7 +93,7 @@ export default function ShopPage() {
       {/* Results info */}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-gray-600">
-          {loading ? "Cargando..." : `${total} productos encontrados`}
+          {loading ? "Cargando..." : `${total} productos de emprendedores encontrados`}
         </p>
         {search && (
           <button
@@ -86,7 +101,7 @@ export default function ShopPage() {
               setSearch("");
               setPage(1);
             }}
-            className="text-sm text-[#615CF2] hover:underline"
+            className="text-sm text-green-600 hover:underline"
           >
             Limpiar búsqueda
           </button>
@@ -107,21 +122,26 @@ export default function ShopPage() {
       ) : products.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <div key={product._id} className="relative">
+              <ProductCard product={product} />
+              <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-lg">
+                Emprendedor
+              </div>
+            </div>
           ))}
         </div>
       ) : (
         <div className="py-16 text-center">
           <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center">
             <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">No se encontraron productos</h3>
+          <h3 className="text-lg font-semibold text-gray-900">No se encontraron emprendimientos</h3>
           <p className="mt-1 text-sm text-gray-500">
             {search
               ? `No hay productos que coincidan con "${search}"`
-              : "Aún no hay productos disponibles"}
+              : "Aún no hay productos de emprendedores disponibles"}
           </p>
           {search && (
             <button
@@ -129,9 +149,9 @@ export default function ShopPage() {
                 setSearch("");
                 setPage(1);
               }}
-              className="mt-4 rounded-md bg-[#615CF2] px-4 py-2 text-sm text-white hover:bg-[#4e49d9]"
+              className="mt-4 rounded-md bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
             >
-              Ver todos los productos
+              Ver todos los emprendimientos
             </button>
           )}
         </div>
@@ -163,7 +183,7 @@ export default function ShopPage() {
                     onClick={() => setPage(pageNum)}
                     className={`rounded-md px-4 py-2 text-sm font-medium ${
                       page === pageNum
-                        ? "bg-[#615CF2] text-white"
+                        ? "bg-green-600 text-white"
                         : "border border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -186,6 +206,23 @@ export default function ShopPage() {
           </button>
         </div>
       )}
+
+      {/* CTA Section */}
+      <div className="mt-12 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-center text-white">
+        <h2 className="text-2xl font-bold mb-2">¿Eres emprendedor?</h2>
+        <p className="mb-4 text-green-100">
+          Únete a nuestra comunidad de vendedores y comparte tus productos con la familia RIWI
+        </p>
+        <Link
+          href="/register"
+          className="inline-flex items-center gap-2 rounded-md bg-white px-6 py-3 text-green-600 font-semibold hover:bg-green-50 transition"
+        >
+          Regístrate ahora
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </Link>
+      </div>
     </div>
   );
 }

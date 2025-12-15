@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function ProductCard({ product }: { product: any }) {
-  const { _id, name, price, images, stock } = product;
+  const { _id, name, price, images, stock, ownerId } = product;
   const hasStock = stock === undefined || stock > 0;
 
   return (
@@ -20,6 +20,11 @@ export default function ProductCard({ product }: { product: any }) {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-gray-400 text-sm">Sin imagen</div>
+          )}
+          {ownerId && (
+            <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-green-600 px-2.5 py-1 text-xs font-semibold text-white shadow-md">
+              Emprendedor
+            </span>
           )}
         </div>
 

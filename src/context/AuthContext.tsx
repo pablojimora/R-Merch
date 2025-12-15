@@ -6,7 +6,8 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "seller";
+  isActive: boolean;
 };
 
 type AuthContextType = {
@@ -64,7 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       id: found.id, 
       name: found.name, 
       email: found.email,
-      role: found.role || "user" // Default to user if not specified
+      role: found.role || "user", // Default to user if not specified
+      isActive: found.isActive !== false // Default to true if not specified
     };
     saveSession(userObj);
     return { success: true };
@@ -81,15 +83,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const exists = all.find((u: any) => u.email === email);
     if (exists) return { success: false, message: "El correo ya está registrado" };
 
-    const newUser = { id: `x_${Date.now()}`, name, email, password, role: "user" };
+    // Nuevos usuarios están activos como usuarios normales
+    const newUser = { id: `x_${Date.now()}`, name, email, password, role: "user", isActive: true };
     const newExtra = [...extra, newUser];
     saveExtraUsers(newExtra);
 
+    // Autologuear al usuario
     const userObj: User = { 
       id: newUser.id, 
       name: newUser.name, 
       email: newUser.email,
-      role: "user"
+      role: "user",
+      isActive: true
     };
     saveSession(userObj);
     return { success: true };
