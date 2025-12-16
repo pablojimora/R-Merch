@@ -2,80 +2,140 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
-import { getCardProducts } from "@/services/products";
+import { useCart } from "@/context/CartContext";
 
 export default function Header() {
   const auth = useAuth();
-  const [cartCount, setCartCount] = useState(0);
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("rmerch_user") || "{}");
-    if (user.id) {
-      getCardProducts(user.id).then(res => {
-        const count = res.data?.items?.length || 0;
-        setCartCount(count);
-      });
-    }
-  }, []);
+  const { cartCount } = useCart();
 
   return (
-    <header className="w-full border-b bg-white/80 backdrop-blur-sm">
-      <div className="flex flex-wrap container mx-auto items-center justify-between px-4 py-4">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#615CF2] text-white">
-            <span className="font-semibold">R</span>
-          </div>
-          <div className="text-lg font-semibold text-[#161C40]">
-            R-Merch
-          </div>
-        </Link>
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-md shadow-sm">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative h-10 w-10 transition-transform group-hover:scale-105">
+              <Image 
+                src="/RiwiLogo.png" 
+                alt="RIWI Logo" 
+                fill
+                className="object-contain"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold text-[#161C40] leading-tight">R-Merch</span>
+              <span className="text-xs text-gray-500 leading-tight">by RIWI</span>
+            </div>
+          </Link>
 
-        <nav className="flex flex-wrap justify-center items-center gap-4">
-          <Link href="/" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Inicio</Link>
-          <Link href="/shop" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Tienda</Link>
-          <Link href="/emprendimientos" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Emprendimientos</Link>
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            <Link 
+              href="/" 
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#615CF2] hover:bg-[#615CF2]/5 rounded-lg transition"
+            >
+              Inicio
+            </Link>
+            <Link 
+              href="/shop" 
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#615CF2] hover:bg-[#615CF2]/5 rounded-lg transition"
+            >
+              Tienda Official
+            </Link>
+            <Link 
+              href="/emprendimientos" 
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#615CF2] hover:bg-[#615CF2]/5 rounded-lg transition"
+            >
+              Emprendimientos
+            </Link>
+          </nav>
 
-          {auth.user ? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Hola, <strong>{auth.user.name}</strong></span>
+          {/* User Actions */}
+          <div className="flex items-center gap-3">
+            {auth.user ? (
+              <>
+                {/* User Info */}
+                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full">
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#615CF2] to-[#4e49d9] flex items-center justify-center text-white text-sm font-semibold">
+                    {auth.user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">{auth.user.name}</span>
+                  {auth.isAdmin() && (
+                    <span className="px-2 py-0.5 bg-[#615CF2] text-white text-xs font-semibold rounded-full">
+                      Admin
+                    </span>
+                  )}
+                </div>
+
+                {/* Panel Links */}
                 {auth.isAdmin() && (
-                  <span className="rounded-full bg-[#615CF2] px-2 py-0.5 text-xs font-semibold text-white">
-                    Admin
-                  </span>
+                  <Link 
+                    href="/admin" 
+                    className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#615CF2] hover:bg-[#615CF2]/5 rounded-lg transition"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    Panel
+                  </Link>
                 )}
                 {auth.user.role === 'seller' && (
-                  <span className="rounded-full bg-green-600 px-2 py-0.5 text-xs font-semibold text-white">
-                    Vendedor
-                  </span>
+                  <Link 
+                    href="/seller" 
+                    className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#615CF2] hover:bg-[#615CF2]/5 rounded-lg transition"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Mi Tienda
+                  </Link>
                 )}
-              </div>
-              {auth.isAdmin() && (
-                <Link href="/admin" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">
-                  Panel Admin
-                </Link>
-              )}
-              {auth.user.role === 'seller' && (
-                <Link href="/seller" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">
-                  Panel Vendedor
-                </Link>
-              )}
-              <button onClick={() => auth.logout()} className="rounded-md bg-gray-100 px-3 py-1 text-sm hover:bg-gray-200">Cerrar</button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-[#615CF2]">Entrar</Link>
-              <Link href="/register" className="rounded-full bg-[#615CF2] px-4 py-2 text-sm font-semibold text-white hover:bg-[#4e49d9]">Registro</Link>
-            </div>
-          )}
 
-          <Link href="/cart" className="relative inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-[#161C40] hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h-2l-1 2h2l3.6 7.59-1.35 2.44C8.89 16.37 9.5 18 11 18h8v-2h-7.1c-.14 0-.25-.09-.29-.22L12.1 14h5.45c.75 0 1.41-.41 1.75-1.03l3.58-7.59L21.3 3H6.21l-.94-2H1v2h3l3.6 7.59L7 4z"/></svg>
-            Carrito
-            <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#62D9AD] text-xs font-medium text-white">{cartCount}</span>
-          </Link>
-        </nav>
+                {/* Cart Button */}
+                <Link 
+                  href="/cart" 
+                  className="relative flex items-center gap-2 px-4 py-2 bg-[#615CF2] text-white rounded-lg hover:bg-[#4e49d9] transition shadow-sm"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  <span className="hidden sm:inline text-sm font-medium">Carrito</span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center h-5 w-5 bg-[#2BD968] text-white text-xs font-bold rounded-full">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Logout Button */}
+                <button 
+                  onClick={() => auth.logout()} 
+                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                  title="Cerrar sesión"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link 
+                  href="/login" 
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#615CF2] hover:bg-[#615CF2]/5 rounded-lg transition"
+                >
+                  Entrar
+                </Link>
+                <Link 
+                  href="/register" 
+                  className="px-5 py-2 bg-gradient-to-r from-[#615CF2] to-[#4e49d9] text-white text-sm font-semibold rounded-lg hover:shadow-lg transition"
+                >
+                  Registro
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </header>
   );

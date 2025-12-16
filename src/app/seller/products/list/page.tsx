@@ -223,7 +223,7 @@ function SellerProductsContent() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      ${product.price?.toFixed(2)}
+                      ${Number(product.price).toLocaleString('es-CO')} COP
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${

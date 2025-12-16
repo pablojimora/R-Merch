@@ -225,7 +225,7 @@ function EditProductContent() {
           {/* Price */}
           <div>
             <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-              Precio (USD) <span className="text-red-600">*</span>
+              Precio (COP) <span className="text-red-600">*</span>
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
@@ -233,12 +233,12 @@ function EditProductContent() {
                 type="number"
                 id="price"
                 required
-                step="0.01"
+                step="1"
                 min="0"
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 className="w-full rounded-md border border-gray-300 px-4 py-3 pl-8 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20"
-                placeholder="0.00"
+                placeholder="Ej: 50000"
               />
             </div>
           </div>

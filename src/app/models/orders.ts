@@ -27,6 +27,14 @@ const OrderItemSchema = new mongoose.Schema({
     image: {
         type: String,
         default: ""
+    },
+    ownerId: {
+        type: String,
+        required: false // null para productos oficiales, userId para productos de vendedor
+    },
+    isOfficial: {
+        type: Boolean,
+        default: false
     }
 });
 

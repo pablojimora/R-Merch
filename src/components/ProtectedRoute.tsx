@@ -14,12 +14,19 @@ export default function ProtectedRoute({
   requireAdmin = false,
   redirectTo = "/login"
 }: ProtectedRouteProps) {
-  const { user, isAdmin } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    // Esperar a que termine de cargar la sesión
+    if (loading) return;
+
     // Check if user is not logged in
     if (!user) {
+      // Guardar la ruta actual para redirigir después del login
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('rmerch_redirect_after_login', window.location.pathname);
+      }
       router.push(redirectTo);
       return;
     }
@@ -29,10 +36,10 @@ export default function ProtectedRoute({
       router.push("/"); // Redirect to home if not admin
       return;
     }
-  }, [user, requireAdmin, router, redirectTo, isAdmin]);
+  }, [user, loading, requireAdmin, router, redirectTo, isAdmin]);
 
   // Show loading or nothing while checking
-  if (!user) {
+  if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">

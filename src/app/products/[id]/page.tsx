@@ -6,10 +6,12 @@ import Link from "next/link";
 import { addToCart } from "@/services/products";
 import { Product } from "@/app/admin/page";
 import Modal from "@/components/Modal";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { updateCartCount } = useCart();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -49,6 +51,7 @@ export default function ProductDetailPage() {
       productId: product._id,
       quantity,
     });
+    await updateCartCount();
     setOpen(true);
     console.log(product);
   };
@@ -166,7 +169,7 @@ export default function ProductDetailPage() {
           {/* Price */}
           <div className="mb-4">
             <span className="text-3xl font-bold text-[#615CF2]">
-              ${Number(product.price).toFixed(2)}
+              ${Number(product.price).toLocaleString('es-CO')} COP
             </span>
           </div>
 

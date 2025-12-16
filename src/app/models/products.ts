@@ -33,6 +33,11 @@ const ProductSchema = new mongoose.Schema({
     required: false
   },
 
+  ownerName: {
+    type: String,
+    required: false
+  },
+
   isOfficial: {
     type: Boolean,
     default: false

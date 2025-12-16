@@ -6,9 +6,11 @@ import { createOrder } from "@/services/cartToOrder";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Modal from "./Modal";
+import { useCart } from "@/context/CartContext";
 
 const ProductCart = ({ imageUrl, name, price, stock, _id, quantity }: Product) => {
   const router = useRouter();
+  const { updateCartCount } = useCart();
   const [editQuantity, setEditQuantity] = useState(quantity || 1);
   const [openReserve, setOpenReserve] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
@@ -20,6 +22,7 @@ const ProductCart = ({ imageUrl, name, price, stock, _id, quantity }: Product) =
     if (!value || value < 1) return;
     try {
       await updateCartProduct(userId, _id, value);
+      await updateCartCount();
       router.refresh();
     } catch (err) {
       // Puedes mostrar un toast o alerta si lo deseas
@@ -32,6 +35,7 @@ const ProductCart = ({ imageUrl, name, price, stock, _id, quantity }: Product) =
     if (!confirm("¿Eliminar este producto del carrito?")) return;
     try {
       await deleteCartProduct(userId, _id);
+      await updateCartCount();
       setOpenDelete(true);
       router.refresh();
     } catch (err) {

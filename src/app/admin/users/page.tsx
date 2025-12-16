@@ -14,6 +14,7 @@ interface User {
 }
 
 const EXTRA_USERS_KEY = "rmerch_extra_users";
+const USER_ROLES_KEY = "rmerch_user_roles";
 
 export default function UsersPage() {
   return (
@@ -37,7 +38,17 @@ function UsersContent() {
     try {
       const extraUsersRaw = localStorage.getItem(EXTRA_USERS_KEY);
       const extraUsers = extraUsersRaw ? JSON.parse(extraUsersRaw) : [];
-      const allUsers = [...MOCK_USERS, ...extraUsers];
+      
+      // Cargar roles modificados
+      const userRolesRaw = localStorage.getItem(USER_ROLES_KEY);
+      const userRoles = userRolesRaw ? JSON.parse(userRolesRaw) : {};
+      
+      // Aplicar roles modificados a todos los usuarios
+      const allUsers = [...MOCK_USERS, ...extraUsers].map(user => ({
+        ...user,
+        role: userRoles[user.id] || user.role
+      }));
+      
       setUsers(allUsers);
     } catch (error) {
       console.error("Error loading users:", error);
@@ -56,14 +67,61 @@ function UsersContent() {
         return user;
       });
       
-      // Guardar en localStorage
+      // Guardar usuarios extra en localStorage
       const extraUsers = updatedUsers.filter(u => u.id.startsWith('x_'));
       localStorage.setItem(EXTRA_USERS_KEY, JSON.stringify(extraUsers));
+      
+      // Guardar TODOS los roles modificados en un objeto separado
+      const userRolesRaw = localStorage.getItem(USER_ROLES_KEY);
+      const userRoles = userRolesRaw ? JSON.parse(userRolesRaw) : {};
+      userRoles[userId] = newRole;
+      localStorage.setItem(USER_ROLES_KEY, JSON.stringify(userRoles));
+      
+      // Actualizar sesión si el usuario actual cambió su rol
+      const currentUserRaw = localStorage.getItem("rmerch_user");
+      if (currentUserRaw) {
+        const currentUser = JSON.parse(currentUserRaw);
+        if (currentUser.id === userId) {
+          currentUser.role = newRole;
+          localStorage.setItem("rmerch_user", JSON.stringify(currentUser));
+        }
+      }
       
       setUsers(updatedUsers);
       setLoading(false);
     } catch (error) {
       console.error("Error changing user role:", error);
+      setLoading(false);
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Filtrar usuario eliminado
+      const updatedUsers = users.filter(user => user.id !== userId);
+      
+      // Actualizar usuarios extra en localStorage
+      const extraUsers = updatedUsers.filter(u => u.id.startsWith('x_'));
+      localStorage.setItem(EXTRA_USERS_KEY, JSON.stringify(extraUsers));
+      
+      // Eliminar del objeto de roles modificados
+      const userRolesRaw = localStorage.getItem(USER_ROLES_KEY);
+      if (userRolesRaw) {
+        const userRoles = JSON.parse(userRolesRaw);
+        delete userRoles[userId];
+        localStorage.setItem(USER_ROLES_KEY, JSON.stringify(userRoles));
+      }
+      
+      setUsers(updatedUsers);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error deleting user:", error);
       setLoading(false);
     }
   };
@@ -110,7 +168,7 @@ function UsersContent() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-[#615CF2]/10 flex items-center justify-center">
@@ -121,22 +179,6 @@ function UsersContent() {
             <div>
               <p className="text-sm text-gray-600">Total Usuarios</p>
               <p className="text-xl font-bold text-[#161C40]">{users.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-              <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Usuarios Activos</p>
-              <p className="text-xl font-bold text-[#161C40]">
-                {users.filter(u => u.isActive).length}
-              </p>
             </div>
           </div>
         </div>
@@ -203,9 +245,6 @@ function UsersContent() {
                   Rol
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
@@ -238,27 +277,30 @@ function UsersContent() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {user.isActive ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
                     {user.role === 'admin' ? (
-                      <span className="text-xs text-gray-500 italic">Admin</span>
+                      <span className="text-xs text-gray-500 italic">No editable</span>
                     ) : (
-                      <select
-                        value={user.role}
-                        onChange={(e) => changeUserRole(user.id, e.target.value)}
-                        disabled={loading}
-                        className="rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <option value="user">Usuario</option>
-                        <option value="seller">Vendedor</option>
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={user.role}
+                          onChange={(e) => changeUserRole(user.id, e.target.value)}
+                          disabled={loading}
+                          className="rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <option value="user">Usuario</option>
+                          <option value="seller">Vendedor</option>
+                        </select>
+                        <button
+                          onClick={() => deleteUser(user.id)}
+                          disabled={loading}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Eliminar usuario"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -275,9 +317,9 @@ function UsersContent() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="text-sm text-blue-800">
-            <p className="font-medium mb-1">Gestión de Roles de Usuario</p>
+            <p className="font-medium mb-1">Gestión de Usuarios</p>
             <p className="text-blue-700">
-              Como administrador, puedes cambiar el rol de cualquier usuario entre "Usuario" y "Vendedor" usando el selector en la columna de acciones. Los vendedores tendrán permisos para crear y gestionar productos.
+              Como administrador, puedes cambiar el rol de cualquier usuario entre "Usuario" y "Vendedor", o eliminarlos del sistema. Los administradores no pueden ser editados ni eliminados.
             </p>
           </div>
         </div>

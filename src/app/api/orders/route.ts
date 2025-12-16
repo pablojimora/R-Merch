@@ -148,7 +148,9 @@ export async function POST(request: NextRequest) {
                 price: product.price,
                 quantity,
                 subtotal,
-                image: product.images && product.images.length > 0 ? product.images[0] : ""
+                image: product.images && product.images.length > 0 ? product.images[0] : "",
+                ownerId: product.ownerId || null,
+                isOfficial: product.isOfficial || false
             });
         }
 

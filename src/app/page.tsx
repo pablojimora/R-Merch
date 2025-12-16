@@ -1,5 +1,6 @@
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 export default async function Home() {
   // Fetch featured products from the API (limit 8)
@@ -38,16 +39,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mt-12 mb-24 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <h3 className="text-xl font-bold text-[#161C40]">Únete a la comunidad RIWI</h3>
-          <p className="max-w-2xl text-gray-600">Suscríbete para recibir noticias, lanzamientos exclusivos y ofertas especiales de R-Merch.</p>
-          <form className="mt-4 flex w-full max-w-md gap-2">
-            <input aria-label="email" placeholder="Tu correo" className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20" />
-            <button className="rounded-md bg-[#615CF2] px-6 py-3 text-white font-semibold hover:bg-[#4e49d9] transition">Suscribirse</button>
-          </form>
-        </div>
-      </section>
+      <NewsletterSubscribe />
     </div>
   );
 }

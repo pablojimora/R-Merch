@@ -207,7 +207,7 @@ function EditProductContent() {
             <div className="space-y-1 text-sm">
               <p><span className="font-medium">Nombre:</span> {product.name}</p>
               <p><span className="font-medium">Stock actual:</span> {product.stock} unidades</p>
-              <p><span className="font-medium">Precio actual:</span> ${product.price}</p>
+              <p><span className="font-medium">Precio actual:</span> ${Number(product.price).toLocaleString('es-CO')} COP</p>
               <p><span className="font-medium">Imágenes:</span> {product.images?.length || 0}</p>
             </div>
           </div>
@@ -261,7 +261,7 @@ function EditProductContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                Precio (USD) <span className="text-red-600">*</span>
+                Precio (COP) <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
@@ -269,11 +269,12 @@ function EditProductContent() {
                   type="number"
                   id="price"
                   required
-                  step="0.01"
+                  step="1"
                   min="0"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   className="w-full rounded-md border border-gray-300 px-4 py-3 pl-8 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20"
+                  placeholder="Ej: 50000"
                 />
               </div>
             </div>

@@ -15,7 +15,12 @@ export default function LoginPage() {
     setError(null);
     const res = await login(email, password);
     if (!res.success) setError(res.message || "Error");
-    else router.push("/");
+    else {
+      // Redirigir a la ruta guardada o al home
+      const redirectTo = localStorage.getItem('rmerch_redirect_after_login');
+      localStorage.removeItem('rmerch_redirect_after_login');
+      router.push(redirectTo || "/");
+    }
   };
 
   return (

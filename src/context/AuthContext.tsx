@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import MOCK_USERS from "@/lib/mockUsers";
 
 type User = {
@@ -12,6 +13,7 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>;
@@ -24,7 +26,9 @@ const STORAGE_KEY = "rmerch_user";
 const EXTRA_USERS_KEY = "rmerch_extra_users";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -32,6 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (raw) setUser(JSON.parse(raw));
     } catch (e) {
       // ignore
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -61,11 +67,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const found = all.find((u: any) => u.email === email && u.password === password);
     if (!found) return { success: false, message: "Credenciales inválidas" };
 
+    // Cargar roles modificados por admin
+    const userRolesRaw = localStorage.getItem("rmerch_user_roles");
+    const userRoles = userRolesRaw ? JSON.parse(userRolesRaw) : {};
+    const actualRole = userRoles[found.id] || found.role || "user";
+
     const userObj: User = { 
       id: found.id, 
       name: found.name, 
       email: found.email,
-      role: found.role || "user", // Default to user if not specified
+      role: actualRole, // Usar rol modificado si existe
       isActive: found.isActive !== false // Default to true if not specified
     };
     saveSession(userObj);
@@ -73,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    router.push('/');
     saveSession(null);
   };
 
@@ -105,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

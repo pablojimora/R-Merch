@@ -5,12 +5,14 @@ import Order from "@/app/models/orders";
 // GET - Obtener una orden específica
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnection();
 
-        const order = await Order.findById(params.id)
+        const { id } = await context.params;
+
+        const order = await Order.findById(id)
             .populate("items.productId", "name images description");
 
         if (!order) {
@@ -37,10 +39,12 @@ export async function GET(
 // PATCH - Actualizar orden (principalmente para Admin)
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnection();
+
+        const { id } = await context.params;
 
         const body = await request.json();
         const {
@@ -78,7 +82,7 @@ export async function PATCH(
         }
 
         // Obtener la orden actual
-        const order = await Order.findById(params.id);
+        const order = await Order.findById(id);
 
         if (!order) {
             return NextResponse.json({
@@ -114,7 +118,7 @@ export async function PATCH(
         }
 
         const updatedOrder = await Order.findByIdAndUpdate(
-            params.id,
+            id,
             updateData,
             { new: true, runValidators: true }
         ).populate("items.productId", "name images");
@@ -134,63 +138,43 @@ export async function PATCH(
     }
 }
 
-// DELETE - Cancelar una orden
+// DELETE - Eliminar una orden completamente
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnection();
 
-        const body = await request.json().catch(() => ({}));
-        const { userId, reason } = body;
+        const { id } = await context.params;
+        
+        console.log("Attempting to delete order with ID:", id);
 
-        const order = await Order.findById(params.id);
+        const order = await Order.findById(id);
 
         if (!order) {
+            console.log("Order not found with ID:", id);
             return NextResponse.json({
                 success: false,
                 message: "Orden no encontrada"
             }, { status: 404 });
         }
 
-        // Validar que solo se puedan cancelar órdenes en estados tempranos
-        const cancelableStatuses = ["pendiente", "confirmada"];
-        if (!cancelableStatuses.includes(order.status)) {
-            return NextResponse.json({
-                success: false,
-                message: `No se puede cancelar una orden con estado: ${order.status}. Solo se pueden cancelar órdenes pendientes o confirmadas.`
-            }, { status: 400 });
-        }
-
-        // Si el usuario cancela, validar que sea su orden
-        if (userId && order.userId !== userId) {
-            return NextResponse.json({
-                success: false,
-                message: "No tienes permiso para cancelar esta orden"
-            }, { status: 403 });
-        }
-
-        order.status = "cancelada";
-        order.statusHistory.push({
-            status: "cancelada",
-            date: new Date(),
-            updatedBy: userId || "admin",
-            notes: reason || "Orden cancelada"
-        });
-
-        await order.save();
+        // Eliminar la orden permanentemente
+        await Order.findByIdAndDelete(id);
+        
+        console.log("Order deleted successfully:", id);
 
         return NextResponse.json({
             success: true,
-            message: "Orden cancelada exitosamente",
-            data: order
+            message: "Orden eliminada exitosamente"
         }, { status: 200 });
 
     } catch (error: any) {
+        console.error("Error deleting order:", error);
         return NextResponse.json({
             success: false,
-            message: "Error al cancelar la orden",
+            message: "Error al eliminar la orden",
             error: error.message
         }, { status: 500 });
     }

@@ -154,7 +154,7 @@ function ManageProductsContent() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm font-medium text-gray-900">
-                        ${Number(product.price).toFixed(2)}
+                        ${Number(product.price).toLocaleString('es-CO')} COP
                       </span>
                     </td>
                     <td className="px-6 py-4">
