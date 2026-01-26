@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnection from "@/app/lib/dbConnection";
 import User from "@/app/models/user";
 import bcrypt from "bcryptjs";
+import { generateToken } from "@/lib/auth";
 
 // POST - Iniciar sesión
 export async function POST(request: NextRequest) {
@@ -47,20 +48,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Retornar usuario sin contraseña
-    const userResponse = {
+    // Generar token JWT
+    const token = generateToken({
       id: user._id.toString(),
-      name: user.name,
       email: user.email,
-      role: user.role,
-      isActive: user.isActive,
-      createdAt: user.createdAt
-    };
+      role: user.role
+    });
 
+    // Retornar token y datos básicos del usuario
     return NextResponse.json(
       { 
         message: "Login exitoso",
-        user: userResponse 
+        token,
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
       },
       { status: 200 }
     );

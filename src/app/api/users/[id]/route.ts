@@ -3,6 +3,7 @@ import dbConnection from "@/app/lib/dbConnection";
 import User from "@/app/models/user";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import { getAuthUser } from "@/lib/auth";
 
 // PATCH - Actualizar usuario (rol, estado, datos)
 export async function PATCH(
@@ -11,6 +12,24 @@ export async function PATCH(
 ) {
   try {
     await dbConnection();
+
+    // Verificar autenticación
+    const authUser = getAuthUser(req);
+    
+    if (!authUser) {
+      return NextResponse.json(
+        { error: "No autorizado. Token requerido" },
+        { status: 401 }
+      );
+    }
+
+    // Verificar que sea admin
+    if (authUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acceso denegado. Solo administradores" },
+        { status: 403 }
+      );
+    }
 
     const { id } = await params;
     
@@ -107,6 +126,24 @@ export async function DELETE(
 ) {
   try {
     await dbConnection();
+
+    // Verificar autenticación
+    const authUser = getAuthUser(req);
+    
+    if (!authUser) {
+      return NextResponse.json(
+        { error: "No autorizado. Token requerido" },
+        { status: 401 }
+      );
+    }
+
+    // Verificar que sea admin
+    if (authUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acceso denegado. Solo administradores" },
+        { status: 403 }
+      );
+    }
 
     const { id } = await params;
     

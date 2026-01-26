@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnection from "@/app/lib/dbConnection";
 import User from "@/app/models/user";
 import bcrypt from "bcryptjs";
+import { generateToken } from "@/lib/auth";
 
 // POST - Registrar nuevo usuario
 export async function POST(request: NextRequest) {
@@ -48,20 +49,24 @@ export async function POST(request: NextRequest) {
       isActive: true
     });
 
-    // Retornar usuario sin contraseña
-    const userResponse = {
+    // Generar token JWT
+    const token = generateToken({
       id: newUser._id.toString(),
-      name: newUser.name,
       email: newUser.email,
-      role: newUser.role,
-      isActive: newUser.isActive,
-      createdAt: newUser.createdAt
-    };
+      role: newUser.role
+    });
 
+    // Retornar token y usuario sin contraseña
     return NextResponse.json(
       { 
         message: "Usuario registrado exitosamente",
-        user: userResponse 
+        token,
+        user: {
+          id: newUser._id.toString(),
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role
+        }
       },
       { status: 201 }
     );

@@ -1,11 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnection from "@/app/lib/dbConnection";
 import User from "@/app/models/user";
+import { getAuthUser } from "@/lib/auth";
 
 // GET - Obtener todos los usuarios (solo admin)
 export async function GET(request: NextRequest) {
   try {
     await dbConnection();
+
+    // Verificar autenticación
+    const authUser = getAuthUser(request);
+    
+    if (!authUser) {
+      return NextResponse.json(
+        { error: "No autorizado. Token requerido" },
+        { status: 401 }
+      );
+    }
+
+    // Verificar que sea admin
+    if (authUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Acceso denegado. Solo administradores" },
+        { status: 403 }
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
