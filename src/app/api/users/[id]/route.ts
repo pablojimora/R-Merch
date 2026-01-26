@@ -2,16 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnection from "@/app/lib/dbConnection";
 import User from "@/app/models/user";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 // PATCH - Actualizar usuario (rol, estado, datos)
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnection();
 
-    const { id } = params;
+    const { id } = await params;
+    
+    // Validar que el ID sea un ObjectId válido
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "ID de usuario inválido" },
+        { status: 400 }
+      );
+    }
+    
     const body = await req.json();
     const { name, email, password, role, isActive } = body;
 
@@ -93,12 +103,20 @@ export async function PATCH(
 // DELETE - Eliminar usuario
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnection();
 
-    const { id } = params;
+    const { id } = await params;
+    
+    // Validar que el ID sea un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "ID de usuario inválido" },
+        { status: 400 }
+      );
+    }
 
     // Buscar y eliminar usuario
     const deletedUser = await User.findByIdAndDelete(id);
