@@ -152,7 +152,7 @@ function CreateProductContent() {
     <div className="py-8 max-w-3xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#161C40]">Crear Producto</h1>
+        <h1 className="text-3xl font-bold text-dark">Crear Producto</h1>
         <p className="mt-2 text-gray-600">Agrega un nuevo producto al catálogo</p>
       </div>
 
@@ -161,7 +161,7 @@ function CreateProductContent() {
         {error && (
           <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4">
             <div className="flex gap-3">
-              <svg className="h-5 w-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-5 w-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="text-sm text-red-800">{error}</p>
@@ -181,7 +181,7 @@ function CreateProductContent() {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20"
+              className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="Ej: Camiseta RIWI"
             />
           </div>
@@ -196,7 +196,7 @@ function CreateProductContent() {
               rows={4}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20"
+              className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="Describe el producto..."
             />
           </div>
@@ -217,12 +217,11 @@ function CreateProductContent() {
                   min="0"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full rounded-md border border-gray-300 px-4 py-3 pl-8 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20"
+                  className="w-full rounded-md border border-gray-300 px-4 py-3 pl-8 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="Ej: 50000"
                 />
               </div>
-            </div>
-
+            </div>      
             <div>
               <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
                 Stock <span className="text-red-600">*</span>
@@ -234,7 +233,7 @@ function CreateProductContent() {
                 min="0"
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-[#615CF2] focus:outline-none focus:ring-2 focus:ring-[#615CF2]/20"
+                className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="0"
               />
             </div>
@@ -250,7 +249,7 @@ function CreateProductContent() {
             <div className="mb-4">
               <label 
                 htmlFor="imageUpload" 
-                className={`inline-flex items-center gap-2 px-4 py-3 rounded-md border-2 border-dashed border-gray-300 hover:border-[#615CF2] cursor-pointer transition-colors ${uploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`inline-flex items-center gap-2 px-4 py-3 rounded-md border-2 border-dashed border-gray-300 hover:border-primary cursor-pointer transition-colors ${uploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -308,7 +307,7 @@ function CreateProductContent() {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 rounded-md bg-[#615CF2] px-6 py-3 text-white font-semibold hover:bg-[#4e49d9] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-md bg-primary px-6 py-3 text-white font-semibold hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Creando..." : "Crear Producto"}
           </button>
@@ -324,7 +323,7 @@ function CreateProductContent() {
       {/* Info */}
       <div className="mt-6 rounded-md bg-blue-50 border border-blue-200 p-4">
         <div className="flex gap-3">
-          <svg className="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-5 w-5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="text-sm text-blue-800">
